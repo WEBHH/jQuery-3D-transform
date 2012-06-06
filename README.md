@@ -12,9 +12,9 @@ This library uses native CSS3 transformations in supported browsers.
 ## Supported Browsers for 2D animations
     	* Chrome
     	* FireFox 3.5+
-	* Safari 3.1+
-	* Opera 10.5+
-	* Internet Explorer 9+
+    	* Safari 3.1+
+    	* Opera 10.5+
+    	* Internet Explorer 9+
 
 ## Usage
 	// Rotate 30 Degrees
