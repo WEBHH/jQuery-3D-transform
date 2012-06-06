@@ -1,8 +1,12 @@
 /*!
- * jQuery 2d Transform v0.9.3
- * http://wiki.github.com/heygrady/transform/
- *
+ * jQuery 2d/3d Transform v0.9.4
+ * 
+ * Extend jQuery animate function adding css3 2D & 3D animation.
+ * Copyright 2012, Thomas THELLIEZ (http://eenox.net/)
+ * 
+ * Fork from jQuery 2d Transform v0.9.3 (http://wiki.github.com/heygrady/transform/) 
  * Copyright 2010, Grady Kuhnline
+ *
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  * 
@@ -12,7 +16,7 @@
 // Transform
 ///////////////////////////////////////////////////////
 (function($, window, document, undefined) {
-	/**
+    /**
 	 * @var Regex identify the matrix filter in IE
 	 */
 	var rmatrix = /progid:DXImageTransform\.Microsoft\.Matrix\(.*?\)/,
@@ -121,7 +125,7 @@
 		/**
 		 * @var Array list of all valid transform functions
 		 */
-		funcs: ['matrix', 'origin', 'reflect', 'reflectX', 'reflectXY', 'reflectY', 'rotate', 'scale', 'scaleX', 'scaleY', 'skew', 'skewX', 'skewY', 'translate', 'translateX', 'translateY']
+		funcs: ['matrix', 'origin', 'reflect', 'reflectX', 'reflectXY', 'reflectY', 'rotate', 'rotateX', 'rotateY', 'rotateZ', 'scale', 'scaleX', 'scaleY', 'scaleZ', 'scale3d', 'skew', 'skewX', 'skewY', 'translate', 'translateX', 'translateY', 'translateZ', 'translate3d']
 	});
 	
 	/**
@@ -214,7 +218,7 @@
 				return toPx(elem, val);
 			}
 			
-			var rtranslate = /translate[X|Y]?/,
+			var rtranslate = /translate[X|Y|Z|3d]?/,
 				trans = [];
 				
 			for (var func in funcs) {
@@ -262,7 +266,6 @@
 				d = parseFloat(matrix.e(2,2).toFixed(6)),
 				tx = matrix.rows === 3 ? parseFloat(matrix.e(1,3).toFixed(6)) : 0,
 				ty = matrix.rows === 3 ? parseFloat(matrix.e(2,3).toFixed(6)) : 0;
-			
 			//apply the transform to the element
 			if ($.support.csstransforms && vendorPrefix === '-moz-') {
 				// -moz-
@@ -271,8 +274,8 @@
 				// -webkit, -o-, w3c
 				// NOTE: WebKit and Opera don't allow units on the translate variables
 				this.$elem.css(transformProperty, 'matrix(' + a + ', ' + b + ', ' + c + ', ' + d + ', ' + tx + ', ' + ty + ')');
-			} else if ($.browser.msie) {
-				// IE requires the special transform Filter
+			} else if ($.browser.msie  && $.browser.version < 9) {
+				// IE 7 & 8 requires the special transform Filter
 				
 				//TODO: Use Nearest Neighbor during animation FilterType=\'nearest neighbor\'
 				var filterType = ', FilterType=\'nearest neighbor\''; //bilinear
@@ -465,7 +468,7 @@
 		safeOuterLength: function(dim) {
 			var funcName = 'outer' + (dim == 'width' ? 'Width' : 'Height');
 			
-			if (!$.support.csstransforms && $.browser.msie) {
+			if (!$.support.csstransforms && $.browser.msie && $.browser.version < 9) {
 				// make the variables more generic
 				dim = dim == 'width' ? 'width' : 'height';
 				
@@ -676,6 +679,9 @@
 	}
 	$.extend($.cssAngle, {
 		rotate: true,
+		rotateX: true,
+		rotateY: true,
+		rotateZ: true,
 		skew: true,
 		skewX: true,
 		skewY: true
@@ -717,7 +723,8 @@
 			duplicate: true
 		},
 		skew: 2,
-		translate: 2
+		translate: 2,
+                translate3d:3
 	});
 	
 	// specify unitless funcs
@@ -1225,7 +1232,7 @@
 		},
 		
 		/**
-		 * A 2-value vector
+		 * A 3-value vector
 		 * @param Number x
 		 * @param Number y
 		 * @param Number z
@@ -1239,6 +1246,23 @@
 			}
 			this.length = 3;
 		},
+                
+		/**
+		 * A 4-value vector
+		 * @param Number x
+		 * @param Number y
+		 * @param Number z
+		 * @constructor
+		 */
+		V4: function(x, y, z, l){
+			if ($.isArray(arguments[0])) {
+				this.elements = arguments[0].slice(0, 4);
+			} else {
+				this.elements = [x, y, z, l];
+			}
+			this.length = 4;
+		},
+                
 		
 		/**
 		 * A 2x2 Matrix, useful for 2D-transformations without translations
@@ -1268,6 +1292,22 @@
 			}
 			this.rows = 3;
 			this.cols = 3;
+		},
+                
+
+		/**
+		 * A 4x4 Matrix, useful for 3D-transformations without translations
+		 * @param Number mn
+		 * @constructor
+		 */
+		M4x4: function(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34) {
+			if ($.isArray(arguments[0])) {
+				this.elements = arguments[0].slice(0, 12);
+			} else {
+				this.elements = Array.prototype.slice.call(arguments).slice(0, 12);
+			}
+			this.rows = 4;
+			this.cols = 4;
 		}
 	});
 	
@@ -1296,7 +1336,7 @@
 	     * https://github.com/jaukia/zoomooz/blob/c7a37b9a65a06ba730bd66391bbd6fe8e55d3a49/js/jquery.zoomooz.js
 		 */
 		decompose: function() {
-			var a = this.e(1, 1),
+                            var a = this.e(1, 1),
 				b = this.e(2, 1),
 				c = this.e(1, 2),
 				d = this.e(2, 2),
@@ -1307,6 +1347,9 @@
 			if (Math.abs(a * d - b * c) < 0.01) {
 				return {
 					rotate: 0 + 'deg',
+					rotateX: 0 + 'deg',
+					rotateY: 0 + 'deg',
+					rotateZ: 0 + 'deg',
 					skewX: 0 + 'deg',
 					scaleX: 1,
 					scaleY: 1,
@@ -1351,11 +1394,15 @@
 			
 			return {
 				rotate: r + 'deg',
+				rotateX: r + 'deg',
+				rotateY: r + 'deg',
+				rotateZ: r + 'deg',
 				skewX: k + 'deg',
 				scaleX: sx,
 				scaleY: sy,
 				translateX: tx + 'px',
 				translateY: ty + 'px'
+                                
 			};
 		}
 	};
@@ -1434,6 +1481,15 @@
 	});
 	
 	$.extend($m.M3x3.prototype, Matrix, {
+		toM4x4: function() {
+			var a = this.elements;
+			return new $m.M4x4(
+				a[0], a[1], a[2], 0,
+				a[3], a[4], a[5], 0,
+				a[6], a[7], a[8], 0,
+                                0,    0,    0, 1
+			);	
+		},            
 		/**
 		 * Multiply a 3x3 matrix by a similar matrix or a vector
 		 * @param M3x3 | V3 matrix
@@ -1511,6 +1567,91 @@
 			return a[0] * (a[8] * a[4] - a[7] * a[5]) - a[3] * (a[8] * a[1] - a[7] * a[2]) + a[6] * (a[5] * a[1] - a[4] * a[2]);
 		}
 	});
+        
+	$.extend($m.M4x4.prototype, Matrix, {          
+		/**
+		 * Multiply a 4x4 matrix by a similar matrix or a vector
+		 * @param M4x4 | V4 matrix
+		 * @return M4x4 | V4
+		 */
+		x: function(matrix) {
+			var isVector = typeof(matrix.rows) === 'undefined';
+			
+			// Ensure the right-sized matrix
+			if (!isVector && matrix.rows < 4) {
+				matrix = matrix.toM4x4();
+			}
+			
+			var a = this.elements,
+				b = matrix.elements;
+			
+			if (isVector && b.length == 4) {
+				// b is actually a vector
+				return new $m.V4(
+					a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3],
+					a[4] * b[0] + a[5] * b[1] + a[6] * b[2] + a[7] * b[3],
+					a[8] * b[0] + a[9] * b[1] + a[10] * b[2] + a[11] * b[3]
+				);
+			} else if (b.length == a.length) {
+				// b is a 4x4 matrix
+				return new $m.M4x4(
+					a[0] * b[0] + a[1] * b[4] + a[2] * b[8],
+					a[0] * b[1] + a[1] * b[5] + a[2] * b[9],
+					a[0] * b[2] + a[1] * b[6] + a[2] * b[10],
+					a[0] * b[3] + a[1] * b[7] + a[2] * b[11],
+
+					a[3] * b[0] + a[4] * b[4] + a[5] * b[8],
+					a[3] * b[1] + a[4] * b[5] + a[5] * b[9],
+					a[3] * b[2] + a[4] * b[6] + a[5] * b[10],
+					a[3] * b[3] + a[4] * b[7] + a[5] * b[11],
+
+					a[6] * b[0] + a[7] * b[4] + a[8] * b[8],
+					a[6] * b[1] + a[7] * b[5] + a[8] * b[9],
+					a[6] * b[2] + a[7] * b[6] + a[8] * b[10],
+					a[6] * b[3] + a[7] * b[7] + a[8] * b[11]
+				);
+			}
+			return false; // fail
+		},
+		
+		/**
+		 * Generates an inverse of the current matrix
+		 * @param void
+		 * @return M4x4
+		 * @link http://www.dr-lex.be/random/matrix_inv.html
+		 */
+		inverse: function() {
+			var d = 1/this.determinant(),
+				a = this.elements;
+			return new $m.M4x4(
+				d * (  a[8] * a[4] - a[7] * a[5]),
+				d * (-(a[8] * a[1] - a[7] * a[2])),
+				d * (  a[5] * a[1] - a[4] * a[2]),
+				d * (-(a[5] * a[4] - a[4] * a[5])),
+				
+				d * (-(a[8] * a[3] - a[6] * a[5])),
+				d * (  a[8] * a[0] - a[6] * a[2]),
+				d * (-(a[5] * a[0] - a[3] * a[2])),
+				d * (  a[5] * a[3] - a[3] * a[5]),
+				
+				d * (  a[7] * a[3] - a[6] * a[4]),
+				d * (-(a[7] * a[0] - a[6] * a[1])),
+				d * (  a[4] * a[0] - a[3] * a[1]),
+				d * (-(a[4] * a[3] - a[3] * a[4]))
+			);
+		},
+		
+		/**
+		 * Calculates the determinant of the current matrix
+		 * @param void
+		 * @return Number
+		 * @link http://www.dr-lex.be/random/matrix_inv.html
+		 */
+		determinant: function() {
+			var a = this.elements;
+			return a[0] * (a[8] * a[4] - a[7] * a[5]) - a[3] * (a[8] * a[1] - a[7] * a[2]) + a[6] * (a[5] * a[1] - a[4] * a[2]) + a[9] * (a[5] * a[4] - a[4] * a[5]);
+		}
+	});        
 	
 	/** generic vector prototype */
 	var Vector = {		
@@ -1527,6 +1668,7 @@
 	/** Extend all of the vector types with the same prototype */
 	$.extend($m.V2.prototype, Vector);
 	$.extend($m.V3.prototype, Vector);
+	$.extend($m.V4.prototype, Vector);
 })(jQuery, this, this.document);
 ///////////////////////////////////////////////////////
 // Matrix Calculations
@@ -1573,7 +1715,7 @@
 		 * Calculate a coord on the new object
 		 * @return Object
 		 */
-		coord: function(x, y, z) {
+		coord: function(x, y, z, l) {
 			//default z and w
 			z = typeof(z) !== 'undefined' ? z : 0;
 			
@@ -1586,6 +1728,9 @@
 					break;
 				case 3:
 					vector = matrix.x(new $.matrix.V3(x, y, z));
+					break;
+				case 4:
+					vector = matrix.x(new $.matrix.V4(x, y, z, l));
 					break;
 			}
 			
@@ -1721,11 +1866,11 @@
 	};
 })(jQuery, this, this.document);
 ///////////////////////////////////////////////////////
-// 2d Matrix Functions
+// 2d/3d Matrix Functions
 ///////////////////////////////////////////////////////
 (function($, window, document, undefined) {
 	/**
-	 * Matrix object for creating matrices relevant for 2d Transformations
+	 * Matrix object for creating matrices relevant for 2d/3d Transformations
 	 * @var Object
 	 */
 	if (typeof($.matrix) == 'undefined') {
@@ -1735,7 +1880,8 @@
 	}
 	var $m = $.matrix,
 		$m2x2 = $m.M2x2,
-		$m3x3 = $m.M3x3;
+		$m3x3 = $m.M3x3
+                $m4x4 = $m.M4x4;
 	
 	$.extend( $m, {
 		/**
@@ -1769,11 +1915,18 @@
 					);
 				case 6:
 					return new $m3x3(
-						args[0], args[2], args[4],
+                                                args[0], args[2], args[4],
 						args[1], args[3], args[5],
-						0,       0,       1
+						0,       0,       1                                        
 					);
-			}
+				case 8:
+					return new $m4x4(
+						args[0], args[3], args[6],0,
+						args[1], args[4], args[7],0,
+                                                args[2], args[5], args[8],0,
+						0,       0,       0,      1
+                                                
+					);			}
 		},
 		
 		/**
@@ -1842,7 +1995,84 @@
 				b, d
 			);
 		},
+                
+		/**
+		 * Rotate X around the origin
+		 * @param Number deg
+		 * @return Matrix
+		 * @link http://www.w3.org/TR/SVG/coords.html#RotationDefined
+		 */
+		rotateX: function(deg) {
+			//TODO: detect units
+			var rad = $.angle.degreeToRadian(deg),
+				costheta = Math.cos(rad),
+				sintheta = Math.sin(rad);
+			                        
+			var a = costheta,
+				b = sintheta,
+				c = -sintheta,
+				d = costheta;
+							
+			return new $m4x4(
+				1, 0, 0, 0,
+				0, a, c, 0,
+				0, b, d, 0,
+                                0, 0, 0 ,1
+			);                            
+		},  
+                
+		/**
+		 * Rotate Y around the origin
+		 * @param Number deg
+		 * @return Matrix
+		 * @link http://www.w3.org/TR/SVG/coords.html#RotationDefined
+		 */
+		rotateY: function(deg) {
+			//TODO: detect units
+			var rad = $.angle.degreeToRadian(deg),
+				costheta = Math.cos(rad),
+				sintheta = Math.sin(rad);
+			                        
+			var a = costheta,
+				b = sintheta,
+				c = -sintheta,
+				d = costheta;
+					
+
+			return new $m4x4(
+				a, 0, b, 0,
+				0, 1, 0, 0,
+				c, 0, d, 0,
+                                0, 0, 0 ,1
+			);                            
+		},                  
 		
+		/**
+		 * Rotate Z around the origin
+		 * @param Number deg
+		 * @return Matrix
+		 * @link http://www.w3.org/TR/SVG/coords.html#RotationDefined
+		 */
+		rotateZ: function(deg) {
+			//TODO: detect units
+			var rad = $.angle.degreeToRadian(deg),
+				costheta = Math.cos(rad),
+				sintheta = Math.sin(rad);
+			                        
+			var a = costheta,
+				b = sintheta,
+				c = -sintheta,
+				d = costheta;
+					
+
+			return new $m4x4(
+				a, c, 0, 0,
+				b, d, 0, 0,
+				0, 0, 1, 0,
+                                0, 0, 0 ,1
+			);                            
+		},                 
+                
 		/**
 		 * Scale
 		 * @param Number sx
@@ -1859,6 +2089,29 @@
 				0, sy
 			);
 		},
+                
+		/**
+		 * Scale 3d
+		 * @param Number sx
+		 * @param Number sy
+		 * @param Number sz
+		 * @return Matrix
+		 * @link http://www.w3.org/TR/SVG/coords.html#ScalingDefined
+		 */
+		scale3d: function (sx, sy, sz) {
+			sx = sx || sx === 0 ? sx : 1;
+			sy = sy || sy === 0 ? sy : sx;
+			sz = sz || sz === 0 ? sz : sy;
+			
+			return new $m4x4(
+				sx, 0, 0, 0,
+				0, sy, 0, 0,
+				0, 0, sz, 0,
+                                0, 0, 0 , 1
+			);
+		},                
+                
+                
 		
 		/**
 		 * Scale on the X-axis
@@ -1877,6 +2130,15 @@
 		scaleY: function (sy) {
 			return $m.scale(1, sy);
 		},
+                
+		/**
+		 * Scale on the Z-axis
+		 * @param Number sz
+		 * @return Matrix
+		 */
+		scaleZ: function (sz) {
+			return $m.scale3d(1, 1, sz);
+		},                
 		
 		/**
 		 * Skews on the X-axis and Y-axis
@@ -1937,6 +2199,26 @@
 				0, 0, 1
 			);
 		},
+		/**
+		 * Translate 3d
+		 * @param Number tx
+		 * @param Number ty
+		 * @param Number tz
+		 * @return Matrix
+		 * @link http://www.w3.org/TR/SVG/coords.html#TranslationDefined
+		 */
+		translate3d: function (tx, ty, tz) {
+			tx = tx || 0;
+			ty = ty || 0;
+			tz = tz || 0;
+			
+			return new $m4x4(
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+                                tx, ty, tz ,1
+			);
+		},                
 		
 		/**
 		 * Translate on the X-axis
@@ -1956,6 +2238,18 @@
 		 */
 		translateY: function (ty) {
 			return $m.translate(0, ty);
-		}
+		},
+                
+		/**
+		 * Translate on the Z-axis
+		 * @param Number ty
+		 * @return Matrix
+		 * @link http://www.w3.org/TR/SVG/coords.html#TranslationDefined
+		 */
+		translateZ: function (tz) {
+			return $m.translate3d(0, 0, tz);
+		}                
 	});
 })(jQuery, this, this.document);
+
+
