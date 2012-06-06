@@ -1,20 +1,20 @@
-# 2D Transformations
-This library uses native CSS3 transformations in supported browsers and relies on teh matrix filter in Internet Explorer 8 and below.
+# 2D & 3D Transformations and Animations
+This library uses native CSS3 transformations in supported browsers.
 
-NOTE: In Internet Explorer 8 and below, the transform-origin and the translate functions are simulated using relative positioning. Because of this, in Internet Explorer 8 and below, the top and left position of an element will be incorrect after it has been transformed. The [solution](https://github.com/heygrady/transform/issues#issue/6) is to wrap the element that is to be transformed and position that wrapper instead.
+## Supported Browsers for 3D animations
+    	* Chrome 12+
+    	* Firefox 10+
+    	* Internet Explorer 10+
+    	* Safari 4+
+    	* Android Browser 3+
+    	* iOs Safari 3.2
 
-* Since 0.9.0, proper units are required
-* Since 0.9.0, jQuery 1.4.3 or above is required
-
-## Supported Browsers
-* Native CSS3 Support
-	* FireFox 3.5+
+## Supported Browsers for 2D animations
+    	* Chrome
+    	* FireFox 3.5+
 	* Safari 3.1+
-	* Chrome
 	* Opera 10.5+
 	* Internet Explorer 9+
-* Matrix Filter Support
-	* Internet Explorer 5.5 - 8
 
 ## Usage
 	// Rotate 30 Degrees
@@ -26,25 +26,25 @@ NOTE: In Internet Explorer 8 and below, the transform-origin and the translate f
 	// Animate the rotation
 	$('#example').animate({rotate: '30deg'});
 	
-	// Go Crazy
-	$('#example').transform({
-		matrix: [1, 0, 0, 1, 0, 0], //applies a matrix
-		reflect: true, //same as rotate(180deg)
-		reflectX: true, //mirrored upside down
-		reflectXY: true, //same as reflectX + rotate(-90deg)
-		reflectY: true, //mirrored
-		rotate: '45deg', //rotates 45 degrees
+	// Animate in 3D or 2D.
+    	// Overrides jQuery .animate() method http://api.jquery.com/animate/
+	$('#example').animate({
+		rotateX: '45deg', //rotates 45 degrees on the X axis
+    		rotateY: '45deg', //rotates 45 degrees on the Y axis
+    		rotateZ: '45deg', //rotates 45 degrees on the Z axis
+    		translateX: 20px', //moves the transformation 20px on the X axis
+		translateY: '20px', //moves the transformation 20px on the Y axis
+    		translateZ: '20px', //moves the transformation 20px on the Z axis
+        	scaleX: 1.5, //scales by 1.5 on the X axis
+		scaleY: 1.5, //scales by 1.5 on the Y axis
+		scaleZ: 1.5, //scales by 1.5 on the Z axis        
 		skew: ['10deg', '10deg'], //skews 10 degrees on the x and y axis
 		skewX: '10deg', //skews 10 degrees on the x axis
 		skewY: '10deg', //skews 10 degrees on the y axis
 		scale: [1.5, 1.5], //scales by 1.5 on the x and y axis
-		scaleX: 1.5, //scales by 1.5 on the x axis
-		scaleY: 1.5, //scales by 1.5 on the y axis
 		translate: ['20px', '20px'], //moves the transformation 20px on the x and y axis
-		translateX: 20px', //moves the transformation 20px on the x axis
-		translateY: '20px', //moves the transformation 20px on the y axis
 		origin: ['20%', '20%']  //changes the transformation origin
-	});
+	}, 1000);
 	
 	// Properties can be strings or arrays
 	$('#example').css({skew: ['10deg', '10deg']});
