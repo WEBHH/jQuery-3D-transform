@@ -30,12 +30,12 @@ This library uses native CSS3 transformations in supported browsers.
     	// Overrides jQuery .animate() method http://api.jquery.com/animate/
 	$('#example').animate({
 		rotateX: '45deg', //rotates 45 degrees on the X axis
-    		rotateY: '45deg', //rotates 45 degrees on the Y axis
-    		rotateZ: '45deg', //rotates 45 degrees on the Z axis
-    		translateX: 20px', //moves the transformation 20px on the X axis
+		rotateY: '45deg', //rotates 45 degrees on the Y axis
+		rotateZ: '45deg', //rotates 45 degrees on the Z axis
+		translateX: 20px', //moves the transformation 20px on the X axis
 		translateY: '20px', //moves the transformation 20px on the Y axis
-    		translateZ: '20px', //moves the transformation 20px on the Z axis
-        	scaleX: 1.5, //scales by 1.5 on the X axis
+		translateZ: '20px', //moves the transformation 20px on the Z axis
+		scaleX: 1.5, //scales by 1.5 on the X axis
 		scaleY: 1.5, //scales by 1.5 on the Y axis
 		scaleZ: 1.5, //scales by 1.5 on the Z axis        
 		skew: ['10deg', '10deg'], //skews 10 degrees on the x and y axis
