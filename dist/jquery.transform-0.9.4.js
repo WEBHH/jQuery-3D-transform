@@ -1,8 +1,8 @@
 /*!
- * jQuery 2d/3d Transform version@
+ * jQuery 2d/3d Transform v0.9.4
  * 
  * Extend jQuery animate function adding css3 2D & 3D animation.
- * Copyright 2012, Thomas THELLIEZ (http://eenox.net/)
+ * Copyright 2012, Thomas THELLIEZ  (http://eenox.net/)
  * 
  * Fork from jQuery 2d Transform v0.9.3 (http://wiki.github.com/heygrady/transform/) 
  * Copyright 2010, Grady Kuhnline
@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////
 (function($, window, document, undefined) {
     /**
-     * @var Regex identify the matrix filter in IE
+	 * @var Regex identify the matrix filter in IE
 	 */
 	var rmatrix = /progid:DXImageTransform\.Microsoft\.Matrix\(.*?\)/,
 		rfxnum = /^([\+\-]=)?([\d+.\-]+)(.*)$/,
