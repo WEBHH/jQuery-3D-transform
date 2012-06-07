@@ -10,7 +10,7 @@
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  * 
- * Date: Sat Dec 4 15:46:09 2010 -0800
+ * Date: Wed June 12 13:46:09 2012
  */
 ///////////////////////////////////////////////////////
 // Transform
