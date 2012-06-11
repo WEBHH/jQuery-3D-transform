@@ -26,6 +26,11 @@ This library uses native CSS3 transformations in supported browsers.
 	// Animate the rotation
 	$('#example').animate({rotate: '30deg'});
 	
+	// For 3D transformations & animations :
+	// Don't forget to set perspective to the container (Css : perspective)
+	// (Check out the demo)
+	// Ex : -webkit-perspective:800px;
+	
 	// Animate in 3D or 2D.
     	// Overrides jQuery .animate() method http://api.jquery.com/animate/
 	$('#example').animate({
@@ -35,9 +40,11 @@ This library uses native CSS3 transformations in supported browsers.
 		translateX: 20px', //moves the transformation 20px on the X axis
 		translateY: '20px', //moves the transformation 20px on the Y axis
 		translateZ: '20px', //moves the transformation 20px on the Z axis
+		translate3d: ['20px', '20px', '20px'], //moves the transformation 20px on the x, y and z axis
 		scaleX: 1.5, //scales by 1.5 on the X axis
 		scaleY: 1.5, //scales by 1.5 on the Y axis
 		scaleZ: 1.5, //scales by 1.5 on the Z axis        
+		scale3d: [1.5, 1.5, 1.5], //scales by 1.5 on the x, y and z axis
 		skew: ['10deg', '10deg'], //skews 10 degrees on the x and y axis
 		skewX: '10deg', //skews 10 degrees on the x axis
 		skewY: '10deg', //skews 10 degrees on the y axis
