@@ -2,7 +2,7 @@
  * jQuery 2d/3d Transform v0.9.4
  * 
  * Extend jQuery animate function adding css3 2D & 3D animation.
- * Copyright 2012, Thomas THELLIEZ  (http://eenox.net/)
+ * Copyright 2012, Thomas THELLIEZ (http://eenox.net/)
  * 
  * Fork from jQuery 2d Transform v0.9.3 (http://wiki.github.com/heygrady/transform/) 
  * Copyright 2010, Grady Kuhnline
@@ -10,14 +10,14 @@
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  * 
- * Date: Wed June 12 13:46:09 2012
+ * Date: Sat Dec 4 15:46:09 2010 -0800
  */
 ///////////////////////////////////////////////////////
 // Transform
 ///////////////////////////////////////////////////////
 (function($, window, document, undefined) {
     /**
-	 * @var Regex identify the matrix filter in IE
+     * @var Regex identify the matrix filter in IE
 	 */
 	var rmatrix = /progid:DXImageTransform\.Microsoft\.Matrix\(.*?\)/,
 		rfxnum = /^([\+\-]=)?([\d+.\-]+)(.*)$/,
@@ -331,10 +331,17 @@
 			}
 			
 			// store mixed values with units, assumed pixels
-			this.setAttr('origin', [
-				rperc.test(x) ? x : toPx(this.$elem[0], x) + 'px',
-				rperc.test(y) ? y : toPx(this.$elem[0], y) + 'px'
-			]);
+                        if (typeof(window.Modernizr) !== 'undefined' && Modernizr.csstransforms3d) {
+                            this.setAttr('origin', [
+                                    rperc.test(x) ? x : toPx(this.$elem[0], x) + 'px',
+                                    rperc.test(y) ? y : toPx(this.$elem[0], y) + 'px',
+                                    '0'
+                            ]);
+                        } else 
+                            this.setAttr('origin', [
+                                    rperc.test(x) ? x : toPx(this.$elem[0], x) + 'px',
+                                    rperc.test(y) ? y : toPx(this.$elem[0], y) + 'px'
+                            ]);
 			//console.log(this.getAttr('origin'));
 			return true;
 		},
@@ -696,6 +703,7 @@
 		scale: [1, 1],
 		scaleX: 1,
 		scaleY: 1,
+		scale3d: [1, 1, 1],
 		matrix: [1, 0, 0, 1, 0, 0],
 		origin: ['50%', '50%'], // TODO: allow this to be a function, like get
 		reflect: [1, 0, 0, 1, 0, 0],
@@ -724,7 +732,8 @@
 		},
 		skew: 2,
 		translate: 2,
-                translate3d:3
+                translate3d:3,
+                scale3d:3
 	});
 	
 	// specify unitless funcs
@@ -736,7 +745,9 @@
 		reflectY: true,
 		scale: true,
 		scaleX: true,
-		scaleY: true
+		scaleY: true,
+		scaleZ: true,
+		scale3d: true
 	});
 	
 	// override all of the css functions
@@ -1846,7 +1857,8 @@
 				this.outerWidth * 0.5,
 				this.outerHeight * 0.5
 			);
-			
+
+
 			// the origin to translate from (IE has a fixed origin of 0, 0)
 			fromOrigin = fromOrigin ? fromOrigin : new $.matrix.V2(
 				0,
@@ -1880,7 +1892,7 @@
 	}
 	var $m = $.matrix,
 		$m2x2 = $m.M2x2,
-		$m3x3 = $m.M3x3
+		$m3x3 = $m.M3x3,
                 $m4x4 = $m.M4x4;
 	
 	$.extend( $m, {
@@ -2072,7 +2084,6 @@
                                 0, 0, 0 ,1
 			);                            
 		},                 
-                
 		/**
 		 * Scale
 		 * @param Number sx
@@ -2111,8 +2122,6 @@
 			);
 		},                
                 
-                
-		
 		/**
 		 * Scale on the X-axis
 		 * @param Number sx
