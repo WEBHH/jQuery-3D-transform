@@ -1,5 +1,5 @@
 /*!
- * jQuery 2d/3d Transform v0.9.4
+ * jQuery 2d/3d Transform v0.9.5
  * 
  * Extend jQuery animate function adding css3 2D & 3D animation.
  * Copyright 2012, Thomas THELLIEZ (http://eenox.net/)
@@ -849,8 +849,7 @@
 		return r && r > -10000 ? r : 0;
 	}
 	
-	var _custom = $.fx.prototype.custom;
-	$.fx.prototype.custom = function(from, to, unit) {
+	function customizeTween(from, to, unit) {
 		var multiple = $.cssMultipleValues[this.prop],
 			angle = $.cssAngle[this.prop];
 		
@@ -960,9 +959,26 @@
 				});				
 			});
 		}
-		return _custom.apply(this, arguments);
-	};
+	}
 	
+  if ($.fx.prototype.custom) {
+    (function(prototype) {
+      var _custom = prototype.custom;
+      prototype.custom = function (from, to, unit) {
+      customizeTween.apply(this, arguments);
+        return _custom.apply(this, arguments);
+        };
+    }($.fx.prototype));
+  }
+  
+  // jQuery 1.8+ support
+  if ($.Animation && $.Animation.tweener) {
+    $.Animation.tweener($.transform.funcs.join(' '), function(prop, value) {
+      var tween = this.createTween(prop, value);
+      customizeTween.apply(tween, [tween.start, tween.end, tween.unit]);
+      return tween;
+    });
+  }        
 	/**
 	 * Animates a multi value attribute
 	 * @param Object fx
@@ -1017,7 +1033,7 @@
 	 * Step for animating tranformations
 	 */
 	$.each($.transform.funcs, function(i, func) {
-		$.fx.step[func] = function(fx) {
+		function t(fx) {
 			var transform = fx.elem.transform || new $.transform(fx.elem),
 				funcs = {};
 			
@@ -1032,12 +1048,16 @@
 			}
 			
 			transform.exec(funcs, {preserve: true});
-		};
+    }
+    if ($.Tween && $.Tween.propHooks) {
+      $.Tween.propHooks[func] = { set: t };
+    }
+    if ($.fx.step) $.fx.step[func] = t;
 	});
 	
 	// Support matrix animation
 	$.each(['matrix', 'reflect', 'reflectX', 'reflectXY', 'reflectY'], function(i, func) {
-		$.fx.step[func] = function(fx) {
+		function t(fx) {
 			var transform = fx.elem.transform || new $.transform(fx.elem),
 				funcs = {};
 				
@@ -1075,7 +1095,11 @@
 			});
 			
 			transform.exec(funcs, {preserve: true});
-		};
+ }
+    if ($.Tween && $.Tween.propHooks) {
+      $.Tween.propHooks[func] = { set: t };
+    }
+    if ($.fx.step) $.fx.step[func] = t;
 	});
 })(jQuery, this, this.document);
 ///////////////////////////////////////////////////////
